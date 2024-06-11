@@ -25,12 +25,13 @@ As seguintes bibliotecas são necessárias:
 ## Configuração banco de dados
 
 Para que o programa funcione corretamente, você precisa criar um arquivo chamado `database.properties` com as informações do seu banco de dados. O arquivo deve ter o seguinte formato:
-
-* `user`: exemplo `teste123`
-* `password`: exemplo `123teste`
-* `host`: exemplo `oracle.teste`
-* `port`: substitua pelo número de porta correto
-* `service_name`: substitua pelo nome de serviço correto
+```
+user = 
+password =  
+host = 
+port = 
+service_name = 
+```
 
 Substitua as informações acima com as suas credenciais do banco de dados.
 

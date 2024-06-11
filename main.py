@@ -276,7 +276,7 @@ def Menu(conn):
     print("\n")
     while True:
         try:
-            print(">>>\n Por favor, escolha uma opção de 1 a  ou 0 para voltar: \n")
+            print(">>>\n Por favor, escolha uma opção de 1 a 4 ou 0 para voltar: \n")
             column = int(input(" 1-Visualizar banco de dados; \n 2- Buscar por CNPJ; \n 3- Buscar por Razão Social \n 4- Buscar por Data de Registro\n 0- Sair\n"))
             match column:
                 
@@ -345,4 +345,3 @@ def Main():
 
 if __name__ == "__main__":
     Main()
-

@@ -17,9 +17,9 @@ PYTHON => 3.12.4
 ### Bibliotecas e Instalação
 
 As seguintes bibliotecas são necessárias:
-* `oracledb`
-* `pandas`
-* `tabulate`
+* `oracledb` = Para conexão com banco de dados;
+* `pandas` = Para melhor manipulação de código e arquivos;
+* `tabulate` = Para uma melhor visualização do usuário;
 
 
 ## Configuração banco de dados
@@ -52,7 +52,6 @@ Substitua as informações acima com as suas credenciais do banco de dados.
 2. Crie o arquivo `database.properties` e insira suas credenciais de banco de dados;
 3. Execute o arquivo `main.py` para iniciar o programa;
 4. Siga as instruções do menu para consultar os dados;
-
 
 
 **Autor Diego Costa Silva - diegocosta.contato2021@gmail.com**

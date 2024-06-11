@@ -1,0 +1,10 @@
+#Versão mínima do Python:
+python => 3.12.4
+
+#Bibliotecas:
+oracledb
+pandas
+tabulate
+
+#Rode este comando em seu console para rodar este arquivo, e baixar as bibliotecas necessárias:
+pip install -r requirements.txt

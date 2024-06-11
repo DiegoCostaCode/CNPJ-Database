@@ -1,4 +1,13 @@
-#IMPORTS
+"""
+    Diego Costa Silva - diegocosta.contato2021@gmail.com
+
+    Detalhe:
+
+    Por favor, execute em seu console: 
+    >>> pip install -r requirements.txt
+"""
+
+#Imports
 import oracledb
 import pandas as pd
 import datetime
@@ -11,6 +20,15 @@ df = pd.read_excel("cad_cia_aberta.xlsx")
 df_columns = df[["CNPJ_CIA","DENOM_SOCIAL","SIT","DT_REG"]]
 
 def conexaobd():
+
+    """
+    Esta função faz conexão com o banco de dados, puxando os 
+    parâmetros colocados no arquivo database.properties.
+
+    Retorna uma conexão com o banco de dados se a conexão for bem-sucedida, 
+    ou None caso contrário.
+    """
+
     try:
         with open('database.properties', 'r') as properties:
             credentials = {}
@@ -22,7 +40,7 @@ def conexaobd():
             password=credentials['password'],
             host=credentials['host'],
             port=int(credentials['port']),
-            service_name=credentials['service_name']
+            service_name=credentials['service_name'],
         )
         return conn
     
@@ -31,6 +49,15 @@ def conexaobd():
         return None
     
 def CreateTable(conn):
+
+    """
+    Verifica se a tabela COMPANHIAS existe no banco de dados e, 
+    se não existir, cria uma.
+
+    Args:
+        conn: conexão com o banco de dados
+    """
+
     print("Criando a tabela em seu banco de dados...")
     try:
         
@@ -56,16 +83,29 @@ def CreateTable(conn):
         print(f"Erro: {error}")
 
 def LoadData(conn, df_columns):
+
+    """
+        Carrega os dados do arquivo Excel no banco de dados.
+
+        Verifica se os dados do arquivo Excel já existem no banco de dados,
+        e se não existirem, os insere.
+
+        Args:
+            conn: conexão com o banco de dados
+            df_columns: dados do arquivo Excel
+    """
+
     try:
         cursor = conn.cursor()
-        script_insert = """
+        script_insert = str("""
             INSERT INTO COMPANHIAS (CNPJ, RAZAO_SOCIAL, STATUS, DATA_REGISTRO)
             VALUES (:CNPJ, :RAZAO_SOCIAL, :STATUS, :DATA_REGISTRO)
-        """
-        script_check = """
+        """)
+        script_check = str("""
             SELECT CNPJ, RAZAO_SOCIAL, STATUS, DATA_REGISTRO 
             FROM COMPANHIAS
-        """
+        """)
+
         cursor.execute(script_check)
         existing_data = cursor.fetchall()
         existing_data_set = set((row[0], row[1], row[2], row[3]) for row in existing_data)
@@ -78,10 +118,23 @@ def LoadData(conn, df_columns):
             print("Dados carregados com sucesso!")
         else:
             print("Tudo pronto!!!")
+
     except Exception as error:
         print(f"Erro: {error}")
 
 def Cnpjfilter(conn, column, value):
+
+    """
+    Faz um SELECT na tabela COMPANHIAS com base no CNPJ.
+
+    Args:
+        conn: conexão com o banco de dados
+        column: coluna a ser filtrada (CNPJ)
+        value: valor a ser buscado
+
+    Retorna os resultados da consulta.
+    """
+     
     try:
         cursor = conn.cursor()
 
@@ -103,6 +156,18 @@ def Cnpjfilter(conn, column, value):
         print(f"Erro ao ler dados: {error}")
 
 def RazaoSocialfilter(conn, column, value):
+
+    """
+    Faz um SELECT na tabela COMPANHIAS com base na Razão Social.
+
+    Args:
+        conn: conexão com o banco de dados;
+        column: coluna a ser filtrada (Razão Social);
+        value: valor a ser buscado.
+
+    Retorna os resultados da consulta.
+    """
+
     try:
         cursor = conn.cursor()
 
@@ -124,6 +189,19 @@ def RazaoSocialfilter(conn, column, value):
         print(f"Erro ao ler dados: {error}")
 
 def Datefilter(conn, column, initialDate, finalDate):
+
+    """
+    Faz um SELECT na tabela COMPANHIAS com base na Data de Registro inserida pelo usuario.
+
+    Args:
+        conn: conexão com o banco de dados;
+        column: coluna a ser filtrada (Data de Registro);
+        initialDate: data inicial inserida pelo usuário;
+        finalDate: data final do período inserida pelo usuário.
+
+    Retorna os resultados da consulta.
+    """
+
     try:
         cursor = conn.cursor()
 
@@ -144,19 +222,69 @@ def Datefilter(conn, column, initialDate, finalDate):
     except Exception as error:
         print(f"Erro ao ler dados: {error}")
 
+def Read(conn):
+
+    """
+    Exibe todos os registros da tabela COMPANHIAS.
+
+    Args:
+        conn: conexão com o banco de dados
+    """
+
+    try:
+        cursor = conn.cursor()
+
+        script = f"SELECT * FROM COMPANHIAS ORDER BY ID ASC"
+
+        cursor.execute(script)
+
+        page_size = 20
+        rows = cursor.fetchmany(page_size)
+        print("\nBanco de dados:")
+        headers = ["ID", "CNPJ", "Razão Social", "Status", "Data de Registro"]
+        print(tabulate(rows, headers, tablefmt="grid"))
+
+        while True:
+            resposta = input("Deseja ver mais linhas? (s/n): ")
+            if resposta == 's' or 'S':
+                rows = cursor.fetchmany(page_size)
+                if rows:
+                    print(tabulate(rows, headers, tablefmt="grid"))
+                else:
+                    print("Não há mais linhas para mostrar.")
+                    break
+            elif resposta == 'n' or 'N':
+                print("Okay, estes são os resultados.")
+                break
+            else:
+                print("Resposta inválida. Tente novamente :D.")
+
+    except Exception as error:
+        print(f"Erro ao ler dados: {error}")
+
 def Menu(conn):
+
+    """
+    Exibe um menu para o usuário escolher uma opção de busca.
+
+    Args:
+        conn: conexão com o banco de dados
+    """
+
     print("\n")
     while True:
         try:
             print(">>>\n Por favor, escolha uma opção de 1 a 3 ou 0 para voltar: \n")
-            column = int(input(" 1- Buscar por CNPJ; \n 2- Buscar por Razão Social \n 3- Buscar por Data de Registro\n"))
+            column = int(input(" 1-Visualizar banco de dados; \n 2- Buscar por CNPJ; \n 3- Buscar por Razão Social \n 4- Buscar por Data de Registro\n"))
             match column:
-                    
+                
                 case 1:
+                    Read(conn)
+                case 2:
                     value = input("Digite o CNPJ, Exemplo: 01.234.567/8910-11\n<Digite 0 para voltar\n")
                     Cnpjfilter(conn, "CNPJ", value)   
 
-                case 2:
+                case 3:
                     value = input("Digite a Razão Social: \n <Digite 0 para voltar\n")
             
                     if value == 0:
@@ -164,7 +292,7 @@ def Menu(conn):
 
                     RazaoSocialfilter(conn, "RAZAO_SOCIAL", value)
 
-                case 3:
+                case 4:
                             print("Digite o periodo de tempo que deseja buscar: \n<Digite 0 para voltar \n")
                             initialDate = input("Data inicío: \n")
                             finalDate = input("Data final: \n")
@@ -184,13 +312,21 @@ def Menu(conn):
                                 print("Erro: Data inválida! Use o formato dd/mm/yyyy")
     
                 case _:
-                    print("<<< Saindo...")
+                    print("<<< Tchau... :(")
                     break
 
         except Exception as error:
             print(f"Erro:{error}")
 
 def Main():
+
+    """
+    Função principal do programa.
+
+    Inicializa a conexão com o banco de dados, cria a tabela se necessário,
+    carrega os dados do arquivo Excel e exibe o menu para o usuário.
+    """
+
     try:
       conn = conexaobd()
 

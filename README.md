@@ -12,7 +12,7 @@ Por favor, rode o comando `pip install -r requirements.txt` para baixar as depen
 
 
 ### Versão mínima do Python
-PYTHON => 3.12.4
+PYTHON >= 3.12.4
 
 ### Bibliotecas e Instalação
 

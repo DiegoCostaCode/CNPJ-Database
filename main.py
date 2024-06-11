@@ -1,6 +1,8 @@
 #IMPORTS
 import oracledb
 import pandas as pd
+import datetime
+from tabulate import tabulate 
 
 #Carregando arquivos
 df = pd.read_excel("cad_cia_aberta.xlsx")
@@ -53,7 +55,6 @@ def CreateTable(conn):
     except Exception as error:
         print(f"Erro: {error}")
 
-
 def LoadData(conn, df_columns):
     try:
         cursor = conn.cursor()
@@ -76,30 +77,115 @@ def LoadData(conn, df_columns):
             conn.commit()
             print("Dados carregados com sucesso!")
         else:
-            print("Não há dados novos para serem carregados.")
+            print("Tudo pronto!!!")
     except Exception as error:
         print(f"Erro: {error}")
 
-def Menu():
+def Cnpjfilter(conn, column, value):
+    try:
+        cursor = conn.cursor()
+
+        script = f"SELECT * FROM COMPANHIAS WHERE {column} = :value"
+
+        cursor.execute(script, {"value": value})
+
+        rows = cursor.fetchall()
+
+        if rows:
+            print("\nResultados:")
+            headers = ["ID", "CNPJ", "Razão Social", "Status", "Data de Registro"]
+            print(tabulate(rows, headers, tablefmt="grid"))
+            print("\n")
+        else:
+            print(f"\nNenhum registro encontrado para {value}.\n Verifique novamente o valor inserido.\n")
+
+    except Exception as error:
+        print(f"Erro ao ler dados: {error}")
+
+def RazaoSocialfilter(conn, column, value):
+    try:
+        cursor = conn.cursor()
+
+        script = f"SELECT * FROM COMPANHIAS WHERE {column} = :value"
+
+        cursor.execute(script, {"value": value})
+
+        rows = cursor.fetchall()
+
+        if rows:
+            print("\nResultados:")
+            headers = ["ID", "CNPJ", "Razão Social", "Status", "Data de Registro"]
+            print(tabulate(rows, headers, tablefmt="grid"))
+            print("\n")
+        else:
+            print(f"\nNenhum registro encontrado para {value}.\n Verifique novamente o valor inserido.\n")
+
+    except Exception as error:
+        print(f"Erro ao ler dados: {error}")
+
+def Datefilter(conn, column, initialDate, finalDate):
+    try:
+        cursor = conn.cursor()
+
+        script = f"SELECT * FROM COMPANHIAS WHERE {column} BETWEEN :initialDate AND :finalDate"
+
+        cursor.execute(script, {"initialDate":  initialDate, "finalDate": finalDate})
+
+        rows = cursor.fetchall()
+
+        if rows:
+            print("\nResultados:")
+            headers = ["ID", "CNPJ", "Razão Social", "Status", "Data de Registro"]
+            print(tabulate(rows, headers, tablefmt="grid"))
+            print("\n")
+        else:
+            print(f"\nNenhum registro encontrado para o periodo de {initialDate} a {finalDate}.\n")
+
+    except Exception as error:
+        print(f"Erro ao ler dados: {error}")
+
+def Menu(conn):
+    print("\n")
     while True:
         try:
-            option = int(input("Por favor, escolhe uma opção de 1 a 5:"))
-            match option:
-                case 1:
-                    print("Okay")
+            print(">>>\n Por favor, escolha uma opção de 1 a 3 ou 0 para voltar: \n")
+            column = int(input(" 1- Buscar por CNPJ; \n 2- Buscar por Razão Social \n 3- Buscar por Data de Registro\n"))
+            match column:
                     
+                case 1:
+                    value = input("Digite o CNPJ, Exemplo: 01.234.567/8910-11\n<Digite 0 para voltar\n")
+                    Cnpjfilter(conn, "CNPJ", value)   
+
                 case 2:
-                    print("Okay")
+                    value = input("Digite a Razão Social: \n <Digite 0 para voltar\n")
+            
+                    if value == 0:
+                        break
+
+                    RazaoSocialfilter(conn, "RAZAO_SOCIAL", value)
 
                 case 3:
-                    print("Okay")
+                            print("Digite o periodo de tempo que deseja buscar: \n<Digite 0 para voltar \n")
+                            initialDate = input("Data inicío: \n")
+                            finalDate = input("Data final: \n")
 
-                case 4:
-                    print("Okay")
-                case 5:
-                    print("Okay")
+                            try:
+                                initialDate = datetime.datetime.strptime(initialDate, "%d/%m/%Y")
+                                finalDate = datetime.datetime.strptime(finalDate, "%d/%m/%Y")
+
+                                if initialDate > datetime.datetime.now() or finalDate > datetime.datetime.now():
+                                    print("\nErro: Data não pode estar no futuro! Data atual: " + datetime.datetime.now().strftime("%d-%m-%Y") + "\n")
+                                elif initialDate > finalDate:
+                                    print("\nErro: Data início não pode ser maior que a data final! \n")
+                                else:
+                                    Datefilter(conn, "DATA_REGISTRO", initialDate, finalDate)
+                                    
+                            except ValueError:
+                                print("Erro: Data inválida! Use o formato dd/mm/yyyy")
+    
                 case _:
-                    print("Okay")
+                    print("<<< Saindo...")
+                    break
 
         except Exception as error:
             print(f"Erro:{error}")
@@ -108,13 +194,13 @@ def Main():
     try:
       conn = conexaobd()
 
-      print("=====Bem-vindo(a)=====")
+      print("=====Bem-vindo(a)=====\n")
       
       CreateTable(conn)
 
       LoadData(conn,df_columns)
 
-      Menu()
+      Menu(conn)
 
     except Exception as error:
         print(f"Erro: {error}")

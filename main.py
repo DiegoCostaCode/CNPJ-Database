@@ -63,16 +63,16 @@ def CreateTable(conn):
         
         cursor = conn.cursor()
 
-        table_verify = "SELECT * FROM COMPANHIAS"
+        table_verify = str("SELECT * FROM COMPANHIAS")
 
-        script = """
+        script = str("""
                 CREATE TABLE COMPANHIAS (
                 ID NUMBER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) PRIMARY KEY,
                 CNPJ VARCHAR2(20),
                 RAZAO_SOCIAL VARCHAR2(100),
                 STATUS VARCHAR2(26),
                 DATA_REGISTRO DATE)
-                """
+                """)
        
         if not table_verify:
             cursor.execute(script)
@@ -138,7 +138,7 @@ def Cnpjfilter(conn, column, value):
     try:
         cursor = conn.cursor()
 
-        script = f"SELECT * FROM COMPANHIAS WHERE {column} = :value"
+        script = str(f"SELECT * FROM COMPANHIAS WHERE {column} = :value")
 
         cursor.execute(script, {"value": value})
 
@@ -171,7 +171,7 @@ def RazaoSocialfilter(conn, column, value):
     try:
         cursor = conn.cursor()
 
-        script = f"SELECT * FROM COMPANHIAS WHERE {column} = :value"
+        script = str(f"SELECT * FROM COMPANHIAS WHERE {column} = :value")
 
         cursor.execute(script, {"value": value})
 
@@ -205,7 +205,7 @@ def Datefilter(conn, column, initialDate, finalDate):
     try:
         cursor = conn.cursor()
 
-        script = f"SELECT * FROM COMPANHIAS WHERE {column} BETWEEN :initialDate AND :finalDate"
+        script = str(f"SELECT * FROM COMPANHIAS WHERE {column} BETWEEN :initialDate AND :finalDate")
 
         cursor.execute(script, {"initialDate":  initialDate, "finalDate": finalDate})
 
@@ -224,6 +224,7 @@ def Datefilter(conn, column, initialDate, finalDate):
 
 def Read(conn):
 
+
     """
     Exibe todos os registros da tabela COMPANHIAS.
 
@@ -231,10 +232,11 @@ def Read(conn):
         conn: conexão com o banco de dados
     """
 
+
     try:
         cursor = conn.cursor()
 
-        script = f"SELECT * FROM COMPANHIAS ORDER BY ID ASC"
+        script = str(f"SELECT * FROM COMPANHIAS ORDER BY ID ASC")
 
         cursor.execute(script)
 
@@ -245,16 +247,16 @@ def Read(conn):
         print(tabulate(rows, headers, tablefmt="grid"))
 
         while True:
-            resposta = input("Deseja ver mais linhas? (s/n): ")
-            if resposta == 's' or 'S':
+            resposta = str(input("Deseja ver mais linhas? (s/n): "))
+            if resposta.lower() == 's':
                 rows = cursor.fetchmany(page_size)
                 if rows:
                     print(tabulate(rows, headers, tablefmt="grid"))
                 else:
                     print("Não há mais linhas para mostrar.")
                     break
-            elif resposta == 'n' or 'N':
-                print("Okay, estes são os resultados.")
+            elif resposta.lower() == 'n':
+                print("Okay, estes são os resultados.\n")
                 break
             else:
                 print("Resposta inválida. Tente novamente :D.")
@@ -274,18 +276,18 @@ def Menu(conn):
     print("\n")
     while True:
         try:
-            print(">>>\n Por favor, escolha uma opção de 1 a 3 ou 0 para voltar: \n")
-            column = int(input(" 1-Visualizar banco de dados; \n 2- Buscar por CNPJ; \n 3- Buscar por Razão Social \n 4- Buscar por Data de Registro\n"))
+            print(">>>\n Por favor, escolha uma opção de 1 a  ou 0 para voltar: \n")
+            column = int(input(" 1-Visualizar banco de dados; \n 2- Buscar por CNPJ; \n 3- Buscar por Razão Social \n 4- Buscar por Data de Registro\n 0- Sair\n"))
             match column:
                 
                 case 1:
                     Read(conn)
                 case 2:
-                    value = input("Digite o CNPJ, Exemplo: 01.234.567/8910-11\n<Digite 0 para voltar\n")
+                    value = str(input("\nDigite o CNPJ, Exemplo: 01.234.567/8910-11\n<Digite 0 para voltar\n"))
                     Cnpjfilter(conn, "CNPJ", value)   
 
                 case 3:
-                    value = input("Digite a Razão Social: \n <Digite 0 para voltar\n")
+                    value = str(input("Digite a Razão Social: \n <Digite 0 para voltar\n"))
             
                     if value == 0:
                         break
@@ -294,8 +296,8 @@ def Menu(conn):
 
                 case 4:
                             print("Digite o periodo de tempo que deseja buscar: \n<Digite 0 para voltar \n")
-                            initialDate = input("Data inicío: \n")
-                            finalDate = input("Data final: \n")
+                            initialDate = str(input("Data inicío: \n"))
+                            finalDate = str(input("Data final: \n"))
 
                             try:
                                 initialDate = datetime.datetime.strptime(initialDate, "%d/%m/%Y")

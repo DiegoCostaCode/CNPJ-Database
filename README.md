@@ -33,7 +33,7 @@ port =
 service_name = 
 ```
 
-Afrente do `=`, coloque as suas credencias.
+À frente do `=`, coloque as suas credencias.
 
 ## Funções do projeto
 

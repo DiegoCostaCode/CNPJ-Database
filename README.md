@@ -33,7 +33,7 @@ port =
 service_name = 
 ```
 
-Substitua as informações acima com as suas credenciais do banco de dados.
+Afrente do `=`, coloque as suas credencias.
 
 ## Funções do projeto
 
